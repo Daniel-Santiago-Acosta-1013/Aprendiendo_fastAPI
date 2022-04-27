@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 # fastAPI 
 from fastapi import FastAPI
-from fastapi import Body, Query
+from fastapi import Body, Query, Path
 
 
 #Models 
@@ -35,8 +35,26 @@ def create_person(person: Person = Body(...)):
 
 @app.get("/person/detail")
 def show_person(
-    name: Optional[str] = Query(None, min_length=1, max_length=50),
-    age: str = Query(...)
+    name: Optional[str] = Query(
+        None, 
+        min_length=1, 
+        max_length=50,
+        title="Person name",
+        description="Este es el nombre de la persona, este solo va entre 1 y 50 caracteres" 
+        ),
+    age: str = Query(
+        ...,
+        title="Person age",
+        description="Esta es la edad de la persona, es requerido"
+        )
 ): 
 
     return {name: age}
+
+# validaciones: Path Parameters
+
+@app.get("/person/detail/{person_id}")
+def showw_person(
+    person_id: int = Path(..., gt=0)
+):
+    return {person_id: "It exists!"}
