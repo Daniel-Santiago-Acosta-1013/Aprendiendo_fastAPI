@@ -10,6 +10,7 @@ from pydantic import Field
 from fastapi import FastAPI
 from fastapi import Body, Query, Path
 
+app = FastAPI()
 
 #Models 
 
@@ -29,23 +30,49 @@ class Person(BaseModel):
     first_name: str = Field(
         ...,
         min_length=1,
-        max_length=50
+        max_length=50,
+        example="Santiago"
         )
     last_name: str = Field(
         ...,
         min_length=1,
-        max_length=50
+        max_length=50,
+        example="Acosta"
         )
     age: int = Field(
         ...,
         gt=0,
-        le=105
+        le=105,
+        example=17
         )
 
-    hair_color: Optional[HairColor] = Field(default=None)
+    hair_color: Optional[HairColor] = Field(default=None, example=HairColor.black)
+    is_married: Optional[bool] = Field(default=None)
+    password: str = Field(..., min_length=8)
+
+class PersonOut(BaseModel):
+    first_name: str = Field(
+        ...,
+        min_length=1,
+        max_length=50,
+        example="Santiago"
+        )
+    last_name: str = Field(
+        ...,
+        min_length=1,
+        max_length=50,
+        example="Acosta"
+        )
+    age: int = Field(
+        ...,
+        gt=0,
+        le=105,
+        example=17
+        )
+
+    hair_color: Optional[HairColor] = Field(default=None, example=HairColor.black)
     is_married: Optional[bool] = Field(default=None)
 
-app = FastAPI()
 
 @app.get("/")
 def home():
@@ -54,7 +81,7 @@ def home():
 
 #Request and response Body
 
-@app.post("/person/new")
+@app.post("/person/new", response_model=PersonOut)
 def create_person(person: Person = Body(...)):
     return person
 
@@ -67,12 +94,14 @@ def show_person(
         min_length=1, 
         max_length=50,
         title="Person name",
-        description="Este es el nombre de la persona, este solo va entre 1 y 50 caracteres" 
+        description="Este es el nombre de la persona, este solo va entre 1 y 50 caracteres",
+        example="Andrea" 
         ),
     age: str = Query(
         ...,
         title="Person age",
-        description="Esta es la edad de la persona, es requerido"
+        description="Esta es la edad de la persona, es requerido",
+        example=25
         )
 ): 
 
@@ -94,11 +123,12 @@ def update_person(
         ..., 
         title="Person ID",
         description="Este es el ID de la persona",
-        gt=0
+        gt=0,
+        example=123
     ),
     person: Person = Body(...),
-    Location: Location = Body(...)
+    # Location: Location = Body(...)
 ):
-    results = person.dict()
-    results.update(Location.dict())
-    return results
+    # results = person.dict()
+    # results.update(Location.dict())
+    return person
